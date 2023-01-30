@@ -12,7 +12,7 @@ userAuthRouter.post(
 );
 userAuthRouter.post(
     '/login',
-    validateRequest(USER_MIDDLEWARE.validatePayload, ['email', 'password'], USER_MIDDLEWARE),
+    validateRequest(USER_MIDDLEWARE.validatePayload, ['email'], USER_MIDDLEWARE),
     authenticateUser
 );
 

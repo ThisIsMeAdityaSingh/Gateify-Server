@@ -1,4 +1,7 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const getTime = require('date-fns/getTime');
+const add = require('date-fns/add');
 const { uuid } = require('uuidv4');
 const { supabaseClient } = require('../../supabase/index');
 
@@ -96,7 +99,7 @@ async function authenticateUser(req, res){
         const validatePassword = await bcrypt.compare(password, userPassword);
 
         if(!validatePassword){
-            res.send(403);
+            res.status(403);
             res.json({
                 message: 'Incorrect password. Please try again'
             });
@@ -104,9 +107,19 @@ async function authenticateUser(req, res){
         }
 
         if(validatePassword){
-            res.send(200);
-            delete data.password;
-            res.json(data);
+            // adding in JWT token in the header;
+            delete data[0].password;
+            const token = jwt.sign({
+                data,
+                signedTime: getTime(new Date()),
+                expirationTime: add(new Date(), {minutes: 30})
+            }, process.env.JWT_SECRET);
+            res.status(200);
+            res.json({
+                data,
+                token
+            });
+            return;
         }
 
         res.status(404);
